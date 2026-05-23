@@ -1549,6 +1549,13 @@
   // Prefill saved contact details on page load.
   loadPickupContact();
 
+  // Save contact details as they are typed, so they persist on reload even if
+  // the customer has not submitted yet.
+  CONTACT_FIELDS.forEach(function(n) {
+    var el = form.querySelector('[name="' + n + '"]');
+    if (el) el.addEventListener('input', savePickupContact);
+  });
+
   // Restore the form after a confirmation (used by the auto-reset timer and the
   // "Schedule a Pickup" links). Only the per-order fields are cleared; saved
   // contact details stay prefilled.
