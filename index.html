@@ -950,7 +950,7 @@
         <h1>Clean clothes, delivered to your door.</h1>
         <p class="hero-sub">Fragrance-free wash and fold with free pickup and delivery on 2 bags or more. Serving Las Vegas, Henderson, Summerlin, and North Las Vegas.</p>
         <div class="hero-ctas">
-          <a href="#schedule" class="btn btn-primary btn-lg">Schedule a Pickup</a>
+          <a href="#get-started" class="btn btn-primary btn-lg">Schedule a Pickup</a>
           <a href="#pricing" class="btn btn-outline btn-lg">View Pricing</a>
         </div>
         <div class="hero-stats">
@@ -1565,6 +1565,22 @@
       showError('Network error. Please try again or text us directly.');
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
+    });
+  });
+
+  // Reset the pickup form when the user returns to it after a confirmation,
+  // so a follow-up "Schedule a Pickup" click shows a fresh form instead of
+  // the previous success message.
+  document.querySelectorAll('a[href="#get-started"]').forEach(function(link) {
+    link.addEventListener('click', function() {
+      if (!success.classList.contains('show')) return;
+      form.reset();
+      form.style.display = '';
+      success.classList.remove('show');
+      errorEl.classList.remove('show');
+      var btn = form.querySelector('button[type="submit"]');
+      btn.disabled = false;
+      btn.textContent = 'Schedule Pickup';
     });
   });
 
