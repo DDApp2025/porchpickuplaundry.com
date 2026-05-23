@@ -1560,7 +1560,7 @@
   // "Schedule a Pickup" links). Only the per-order fields are cleared; saved
   // contact details stay prefilled.
   var resetTimer = null;
-  function resetPickupForm() {
+  function resetPickupForm(scrollToTop) {
     clearTimeout(resetTimer);
     TRANSIENT_FIELDS.forEach(function(n) {
       var el = form.querySelector('[name="' + n + '"]');
@@ -1573,6 +1573,10 @@
     var btn = form.querySelector('button[type="submit"]');
     btn.disabled = false;
     btn.textContent = 'Schedule Pickup';
+    // After the auto-reset timer fires, return the visitor to the top of the page.
+    if (scrollToTop) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   form.addEventListener('submit', function(e) {
@@ -1611,7 +1615,7 @@
         success.scrollIntoView({ behavior: 'smooth', block: 'center' });
         // Auto-reset the form after 10 seconds so the confirmation does not linger.
         clearTimeout(resetTimer);
-        resetTimer = setTimeout(resetPickupForm, 10000);
+        resetTimer = setTimeout(function() { resetPickupForm(true); }, 10000);
       } else {
         response.json().then(function(json) {
           var msg = (json && json.errors && json.errors.length)
