@@ -1516,12 +1516,50 @@
     errorEl.classList.add('show');
   }
 
-  // Restore the form to its initial state (used by the auto-reset timer and
-  // by the "Schedule a Pickup" links after a confirmation).
+  // Remember the customer's contact details between visits so repeat customers
+  // only fill in the per-order fields (date, pickup window, number of bags).
+  // Contact fields are saved to the browser on submit and prefilled on return.
+  var CONTACT_FIELDS = ['name', 'phone', 'address', 'details'];
+  var TRANSIENT_FIELDS = ['pickup_date', 'window', 'bags'];
+  var CONTACT_STORE = 'pplc_pickup_contact';
+
+  function savePickupContact() {
+    try {
+      var data = {};
+      CONTACT_FIELDS.forEach(function(n) {
+        var el = form.querySelector('[name="' + n + '"]');
+        if (el) data[n] = el.value;
+      });
+      localStorage.setItem(CONTACT_STORE, JSON.stringify(data));
+    } catch (e) { /* storage unavailable (e.g. private mode); ignore */ }
+  }
+
+  function loadPickupContact() {
+    try {
+      var raw = localStorage.getItem(CONTACT_STORE);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      CONTACT_FIELDS.forEach(function(n) {
+        var el = form.querySelector('[name="' + n + '"]');
+        if (el && data[n]) el.value = data[n];
+      });
+    } catch (e) { /* ignore */ }
+  }
+
+  // Prefill saved contact details on page load.
+  loadPickupContact();
+
+  // Restore the form after a confirmation (used by the auto-reset timer and the
+  // "Schedule a Pickup" links). Only the per-order fields are cleared; saved
+  // contact details stay prefilled.
   var resetTimer = null;
   function resetPickupForm() {
     clearTimeout(resetTimer);
-    form.reset();
+    TRANSIENT_FIELDS.forEach(function(n) {
+      var el = form.querySelector('[name="' + n + '"]');
+      if (el) el.value = '';
+    });
+    loadPickupContact();
     form.style.display = '';
     success.classList.remove('show');
     errorEl.classList.remove('show');
@@ -1560,6 +1598,7 @@
       headers: { 'Accept': 'application/json' }
     }).then(function(response) {
       if (response.ok) {
+        savePickupContact();
         form.style.display = 'none';
         success.classList.add('show');
         success.scrollIntoView({ behavior: 'smooth', block: 'center' });
