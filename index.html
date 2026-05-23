@@ -1563,9 +1563,9 @@
         form.style.display = 'none';
         success.classList.add('show');
         success.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        // Auto-reset the form after 30 seconds so the confirmation does not linger.
+        // Auto-reset the form after 10 seconds so the confirmation does not linger.
         clearTimeout(resetTimer);
-        resetTimer = setTimeout(resetPickupForm, 30000);
+        resetTimer = setTimeout(resetPickupForm, 10000);
       } else {
         response.json().then(function(json) {
           var msg = (json && json.errors && json.errors.length)
