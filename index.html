@@ -1516,6 +1516,20 @@
     errorEl.classList.add('show');
   }
 
+  // Restore the form to its initial state (used by the auto-reset timer and
+  // by the "Schedule a Pickup" links after a confirmation).
+  var resetTimer = null;
+  function resetPickupForm() {
+    clearTimeout(resetTimer);
+    form.reset();
+    form.style.display = '';
+    success.classList.remove('show');
+    errorEl.classList.remove('show');
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled = false;
+    btn.textContent = 'Schedule Pickup';
+  }
+
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     errorEl.classList.remove('show');
@@ -1549,6 +1563,9 @@
         form.style.display = 'none';
         success.classList.add('show');
         success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Auto-reset the form after 30 seconds so the confirmation does not linger.
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(resetPickupForm, 30000);
       } else {
         response.json().then(function(json) {
           var msg = (json && json.errors && json.errors.length)
@@ -1573,14 +1590,7 @@
   // the previous success message.
   document.querySelectorAll('a[href="#get-started"]').forEach(function(link) {
     link.addEventListener('click', function() {
-      if (!success.classList.contains('show')) return;
-      form.reset();
-      form.style.display = '';
-      success.classList.remove('show');
-      errorEl.classList.remove('show');
-      var btn = form.querySelector('button[type="submit"]');
-      btn.disabled = false;
-      btn.textContent = 'Schedule Pickup';
+      if (success.classList.contains('show')) resetPickupForm();
     });
   });
 
